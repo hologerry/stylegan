@@ -144,7 +144,7 @@ def create_session(config_dict: dict = None, force_as_default: bool = False) -> 
         # pylint: disable=protected-access
         session._default_session = session.as_default()
         session._default_session.enforce_nesting = False
-        session._default_session.__enter__() # pylint: disable=no-member
+        session._default_session.__enter__()  # pylint: disable=no-member
 
     return session
 
@@ -215,7 +215,7 @@ def create_var_with_large_initial_value(initial_value: np.ndarray, *args, **kwar
     return var
 
 
-def convert_images_from_uint8(images, drange=[-1,1], nhwc_to_nchw=False):
+def convert_images_from_uint8(images, drange=[-1, 1], nhwc_to_nchw=False):
     """Convert a minibatch of images from uint8 to float32 with configurable dynamic range.
     Can be used as an input transformation for Network.run().
     """
@@ -225,7 +225,7 @@ def convert_images_from_uint8(images, drange=[-1,1], nhwc_to_nchw=False):
     return (images - drange[0]) * ((drange[1] - drange[0]) / 255)
 
 
-def convert_images_to_uint8(images, drange=[-1,1], nchw_to_nhwc=False, shrink=1):
+def convert_images_to_uint8(images, drange=[-1, 1], nchw_to_nhwc=False, shrink=1):
     """Convert a minibatch of images from float32 to uint8 with configurable dynamic range.
     Can be used as an output transformation for Network.run().
     """

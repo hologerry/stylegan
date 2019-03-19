@@ -288,7 +288,7 @@ class Network:
         module = types.ModuleType(module_name)
         sys.modules[module_name] = module
         _import_module_src[module] = self._build_module_src
-        exec(self._build_module_src, module.__dict__) # pylint: disable=exec-used
+        exec(self._build_module_src, module.__dict__)  # pylint: disable=exec-used
 
         # Locate network build function in the temporary module.
         self._build_func = util.get_obj_from_module(module, self._build_func_name)
@@ -388,6 +388,7 @@ class Network:
 
         # Construct unique hash key from all arguments that affect the TensorFlow graph.
         key = dict(input_transform=input_transform, output_transform=output_transform, num_gpus=num_gpus, assume_frozen=assume_frozen, dynamic_kwargs=dynamic_kwargs)
+
         def unwind_key(obj):
             if isinstance(obj, dict):
                 return [(key, unwind_key(value)) for key, value in sorted(obj.items())]
@@ -439,7 +440,7 @@ class Network:
 
             mb_end = min(mb_begin + minibatch_size, num_items)
             mb_num = mb_end - mb_begin
-            mb_in = [src[mb_begin : mb_end] if src is not None else np.zeros([mb_num] + shape[1:]) for src, shape in zip(in_arrays, self.input_shapes)]
+            mb_in = [src[mb_begin: mb_end] if src is not None else np.zeros([mb_num] + shape[1:]) for src, shape in zip(in_arrays, self.input_shapes)]
             mb_out = tf.get_default_session().run(out_expr, dict(zip(in_expr, mb_in)))
 
             for dst, src in zip(out_arrays, mb_out):
@@ -548,10 +549,12 @@ class Network:
 
                 tf.summary.histogram(name, var)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Backwards-compatible emulation of legacy output transformation in Network.run().
 
+
 _print_legacy_warning = True
+
 
 def _handle_legacy_output_transforms(output_transform, dynamic_kwargs):
     global _print_legacy_warning
@@ -572,6 +575,7 @@ def _handle_legacy_output_transforms(output_transform, dynamic_kwargs):
     new_transform = {kwarg: new_kwargs.pop(kwarg) for kwarg in legacy_kwargs if kwarg in dynamic_kwargs}
     new_transform["func"] = _legacy_output_transform_func
     return new_transform, new_kwargs
+
 
 def _legacy_output_transform_func(*expr, out_mul=1.0, out_add=0.0, out_shrink=1, out_dtype=None):
     if out_mul != 1.0:

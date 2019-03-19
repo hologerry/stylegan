@@ -148,9 +148,9 @@ def get_user_name():
         return os.getlogin()
     elif platform.system() == "Linux":
         try:
-            import pwd # pylint: disable=import-error
-            return pwd.getpwuid(os.geteuid()).pw_name # pylint: disable=no-member
-        except:
+            import pwd  # pylint: disable=import-error
+            return pwd.getpwuid(os.geteuid()).pw_name  # pylint: disable=no-member
+        except Exception:
             return "unknown"
     else:
         raise RuntimeError("Unknown platform")
@@ -241,7 +241,7 @@ def run_wrapper(submit_config: SubmitConfig) -> None:
         start_time = time.time()
         util.call_func_by_name(func_name=submit_config.run_func_name, submit_config=submit_config, **submit_config.run_func_kwargs)
         print("dnnlib: Finished {0}() in {1}.".format(submit_config.run_func_name, util.format_time(time.time() - start_time)))
-    except:
+    except Exception:
         if is_local:
             raise
         else:

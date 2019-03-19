@@ -73,7 +73,7 @@ class Logger(object):
 
     def write(self, text: str) -> None:
         """Write text to stdout (and a file) and optionally flush."""
-        if len(text) == 0: # workaround for a bug in VSCode debugger: sys.stdout.write(''); sys.stdout.flush() => crash
+        if len(text) == 0:  # workaround for a bug in VSCode debugger: sys.stdout.write(''); sys.stdout.flush() => crash
             return
 
         if self.file is not None:
@@ -185,7 +185,7 @@ def is_pickleable(obj: Any) -> bool:
         with io.BytesIO() as stream:
             pickle.dump(obj, stream)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -207,16 +207,16 @@ def get_module_from_obj_name(obj_name: str) -> Tuple[types.ModuleType, str]:
     # try each alternative in turn
     for module_name, local_obj_name in name_pairs:
         try:
-            module = importlib.import_module(module_name) # may raise ImportError
-            get_obj_from_module(module, local_obj_name) # may raise AttributeError
+            module = importlib.import_module(module_name)  # may raise ImportError
+            get_obj_from_module(module, local_obj_name)  # may raise AttributeError
             return module, local_obj_name
-        except:
+        except Exception:
             pass
 
     # maybe some of the modules themselves contain errors?
     for module_name, _local_obj_name in name_pairs:
         try:
-            importlib.import_module(module_name) # may raise ImportError
+            importlib.import_module(module_name)  # may raise ImportError
         except ImportError:
             if not str(sys.exc_info()[1]).startswith("No module named '" + module_name + "'"):
                 raise
@@ -224,8 +224,8 @@ def get_module_from_obj_name(obj_name: str) -> Tuple[types.ModuleType, str]:
     # maybe the requested attribute is missing?
     for module_name, local_obj_name in name_pairs:
         try:
-            module = importlib.import_module(module_name) # may raise ImportError
-            get_obj_from_module(module, local_obj_name) # may raise AttributeError
+            module = importlib.import_module(module_name)  # may raise ImportError
+            get_obj_from_module(module, local_obj_name)  # may raise AttributeError
         except ImportError:
             pass
 
@@ -328,16 +328,16 @@ def copy_files_and_create_dirs(files: List[Tuple[str, str]]) -> None:
 
 def is_url(obj: Any) -> bool:
     """Determine whether the given object is a valid URL string."""
-    if not isinstance(obj, str) or not "://" in obj:
+    if not isinstance(obj, str) or "://" not in obj:
         return False
     try:
         res = requests.compat.urlparse(obj)
-        if not res.scheme or not res.netloc or not "." in res.netloc:
+        if not res.scheme or not res.netloc or "." not in res.netloc:
             return False
         res = requests.compat.urlparse(requests.compat.urljoin(obj, "/"))
-        if not res.scheme or not res.netloc or not "." in res.netloc:
+        if not res.scheme or not res.netloc or "." not in res.netloc:
             return False
-    except:
+    except Exception:
         return False
     return True
 
@@ -383,7 +383,7 @@ def open_url(url: str, cache_dir: str = None, num_attempts: int = 10, verbose: b
                     if verbose:
                         print(" done")
                     break
-            except:
+            except Exception:
                 if not attempts_left:
                     if verbose:
                         print(" failed")
@@ -399,7 +399,7 @@ def open_url(url: str, cache_dir: str = None, num_attempts: int = 10, verbose: b
         os.makedirs(cache_dir, exist_ok=True)
         with open(temp_file, "wb") as f:
             f.write(url_data)
-        os.replace(temp_file, cache_file) # atomic
+        os.replace(temp_file, cache_file)  # atomic
 
     # Return data as file object.
     return io.BytesIO(url_data)

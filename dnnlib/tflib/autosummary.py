@@ -167,6 +167,7 @@ def finalize_autosummaries() -> None:
     layout = summary_lib.custom_scalar_pb(layout_pb2.Layout(category=categories))
     return layout
 
+
 def save_summaries(file_writer, global_step=None):
     """Call FileWriter.add_summary() with all summaries in the default graph,
     automatically finalizing and merging them on the first call.

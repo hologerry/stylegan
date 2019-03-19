@@ -19,7 +19,7 @@ import config
 from training import misc
 from training import dataset
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Standard metrics.
 
 fid50k = dnnlib.EasyDict(func_name='metrics.frechet_inception_distance.FID', name='fid50k', num_images=50000, minibatch_per_gpu=8)
@@ -28,10 +28,11 @@ ppl_wfull = dnnlib.EasyDict(func_name='metrics.perceptual_path_length.PPL', name
 ppl_zend = dnnlib.EasyDict(func_name='metrics.perceptual_path_length.PPL', name='ppl_zend', num_samples=100000, epsilon=1e-4, space='z', sampling='end', minibatch_per_gpu=16)
 ppl_wend = dnnlib.EasyDict(func_name='metrics.perceptual_path_length.PPL', name='ppl_wend', num_samples=100000, epsilon=1e-4, space='w', sampling='end', minibatch_per_gpu=16)
 ls = dnnlib.EasyDict(func_name='metrics.linear_separability.LS', name='ls', num_samples=200000, num_keep=100000, attrib_indices=range(40), minibatch_per_gpu=4)
-dummy = dnnlib.EasyDict(func_name='metrics.metric_base.DummyMetric', name='dummy') # for debugging
+dummy = dnnlib.EasyDict(func_name='metrics.metric_base.DummyMetric', name='dummy')  # for debugging
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Base class for metrics.
+
 
 class MetricBase:
     def __init__(self, name):
@@ -55,7 +56,7 @@ class MetricBase:
             self._mirror_augment = run_config['train'].get('mirror_augment', False)
 
         time_begin = time.time()
-        with tf.Graph().as_default(), tflib.create_session(tf_config).as_default(): # pylint: disable=not-context-manager
+        with tf.Graph().as_default(), tflib.create_session(tf_config).as_default():  # pylint: disable=not-context-manager
             _G, _D, Gs = misc.load_pkl(self._network_pkl)
             self._evaluate(Gs, num_gpus=num_gpus)
         self._eval_time = time.time() - time_begin
@@ -85,7 +86,7 @@ class MetricBase:
             tflib.autosummary.autosummary('Metrics/' + self.name + res.suffix, res.value)
 
     def _evaluate(self, Gs, num_gpus):
-        raise NotImplementedError # to be overridden by subclasses
+        raise NotImplementedError  # to be overridden by subclasses
 
     def _report_result(self, value, suffix='', fmt='%-10.4f'):
         self._results += [dnnlib.EasyDict(value=value, suffix=suffix, fmt=fmt)]
@@ -113,8 +114,9 @@ class MetricBase:
             images = Gs.run(latents, None, output_transform=fmt, is_validation=True, num_gpus=num_gpus, assume_frozen=True)
             yield images
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Group of multiple metrics.
+
 
 class MetricGroup:
     def __init__(self, metric_kwarg_list):
@@ -131,12 +133,13 @@ class MetricGroup:
         for metric in self.metrics:
             metric.update_autosummaries()
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Dummy metric for debugging purposes.
+
 
 class DummyMetric(MetricBase):
     def _evaluate(self, Gs, num_gpus):
         _ = Gs, num_gpus
         self._report_result(0.0)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------

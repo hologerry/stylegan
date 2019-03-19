@@ -22,9 +22,10 @@ from .tfutil import TfExpression, TfExpressionEx
 try:
     # TensorFlow 1.13
     from tensorflow.python.ops import nccl_ops
-except:
+except Exception:
     # Older TensorFlow versions
     import tensorflow.contrib.nccl as nccl_ops
+
 
 class Optimizer:
     """A Wrapper for tf.train.Optimizer.
@@ -211,4 +212,4 @@ class Optimizer:
         if not self.use_loss_scaling:
             return value
 
-        return value * tfutil.exp2(-self.get_loss_scaling_var(value.device)) # pylint: disable=invalid-unary-operand-type
+        return value * tfutil.exp2(-self.get_loss_scaling_var(value.device))  # pylint: disable=invalid-unary-operand-type

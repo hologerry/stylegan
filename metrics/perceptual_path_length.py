@@ -14,13 +14,17 @@ import dnnlib.tflib as tflib
 from metrics import metric_base
 from training import misc
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 # Normalize batch of vectors.
+
+
 def normalize(v):
     return v / tf.sqrt(tf.reduce_sum(tf.square(v), axis=-1, keepdims=True))
 
 # Spherical interpolation of a batch of vectors.
+
+
 def slerp(a, b, t):
     a = normalize(a)
     b = normalize(b)
@@ -30,7 +34,8 @@ def slerp(a, b, t):
     d = a * tf.math.cos(p) + c * tf.math.sin(p)
     return normalize(d)
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
 
 class PPL(metric_base.MetricBase):
     def __init__(self, num_samples, epsilon, space, sampling, minibatch_per_gpu, **kwargs):
@@ -64,7 +69,7 @@ class PPL(metric_base.MetricBase):
                     dlat_e0 = tflib.lerp(dlat_t0, dlat_t1, lerp_t[:, np.newaxis, np.newaxis])
                     dlat_e1 = tflib.lerp(dlat_t0, dlat_t1, lerp_t[:, np.newaxis, np.newaxis] + self.epsilon)
                     dlat_e01 = tf.reshape(tf.stack([dlat_e0, dlat_e1], axis=1), dlat_t01.shape)
-                else: # space == 'z'
+                else:  # space == 'z'
                     lat_t0, lat_t1 = lat_t01[0::2], lat_t01[1::2]
                     lat_e0 = slerp(lat_t0, lat_t1, lerp_t[:, np.newaxis])
                     lat_e1 = slerp(lat_t0, lat_t1, lerp_t[:, np.newaxis] + self.epsilon)
@@ -72,25 +77,25 @@ class PPL(metric_base.MetricBase):
                     dlat_e01 = Gs_clone.components.mapping.get_output_for(lat_e01, None, is_validation=True)
 
                 # Synthesize images.
-                with tf.control_dependencies([var.initializer for var in noise_vars]): # use same noise inputs for the entire minibatch
+                with tf.control_dependencies([var.initializer for var in noise_vars]):  # use same noise inputs for the entire minibatch
                     images = Gs_clone.components.synthesis.get_output_for(dlat_e01, is_validation=True, randomize_noise=False)
 
                 # Crop only the face region.
                 c = int(images.shape[2] // 8)
-                images = images[:, :, c*3 : c*7, c*2 : c*6]
+                images = images[:, :, c * 3: c * 7, c * 2: c * 6]
 
                 # Downsample image to 256x256 if it's larger than that. VGG was built for 224x224 images.
                 if images.shape[2] > 256:
                     factor = images.shape[2] // 256
                     images = tf.reshape(images, [-1, images.shape[1], images.shape[2] // factor, factor, images.shape[3] // factor, factor])
-                    images = tf.reduce_mean(images, axis=[3,5])
+                    images = tf.reduce_mean(images, axis=[3, 5])
 
                 # Scale dynamic range from [-1,1] to [0,255] for VGG.
                 images = (images + 1) * (255 / 2)
 
                 # Evaluate perceptual distance.
                 img_e0, img_e1 = images[0::2], images[1::2]
-                distance_measure = misc.load_pkl('https://drive.google.com/uc?id=1N2-m9qszOeVC9Tq77WxsLnuWwOedQiD2') # vgg16_zhang_perceptual.pkl
+                distance_measure = misc.load_pkl('https://drive.google.com/uc?id=1N2-m9qszOeVC9Tq77WxsLnuWwOedQiD2')  # vgg16_zhang_perceptual.pkl
                 distance_expr.append(distance_measure.get_output_for(img_e0, img_e1) * (1 / self.epsilon**2))
 
         # Sampling loop.
@@ -105,4 +110,4 @@ class PPL(metric_base.MetricBase):
         filtered_distances = np.extract(np.logical_and(lo <= all_distances, all_distances <= hi), all_distances)
         self._report_result(np.mean(filtered_distances))
 
-#----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
