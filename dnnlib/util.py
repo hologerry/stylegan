@@ -355,6 +355,7 @@ def open_url(url: str, cache_dir: str = None, num_attempts: int = 10, verbose: b
             return open(cache_files[0], "rb")
 
     # Download.
+    proxies = {'http': "socks5://127.0.0.1:1087"}
     url_name = None
     url_data = None
     with requests.Session() as session:
@@ -362,7 +363,7 @@ def open_url(url: str, cache_dir: str = None, num_attempts: int = 10, verbose: b
             print("Downloading %s ..." % url, end="", flush=True)
         for attempts_left in reversed(range(num_attempts)):
             try:
-                with session.get(url) as res:
+                with session.get(url, proxies=proxies) as res:
                     res.raise_for_status()
                     if len(res.content) == 0:
                         raise IOError("No data received")
