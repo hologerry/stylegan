@@ -162,7 +162,7 @@ def training_loop(
     G.print_layers(); D.print_layers()
 
     print('Building TensorFlow graph...')
-    with tf.name_scope('Inputs'), tf.device('/cpu:0'):
+    with tf.name_scope('Inputs'), tf.device('/gpu:0'):
         lod_in          = tf.placeholder(tf.float32, name='lod_in', shape=[])
         lrate_in        = tf.placeholder(tf.float32, name='lrate_in', shape=[])
         minibatch_in    = tf.placeholder(tf.int32, name='minibatch_in', shape=[])
@@ -234,6 +234,10 @@ def training_loop(
                 tflib.run([D_train_op, Gs_update_op], {lod_in: sched.lod, lrate_in: sched.D_lrate, minibatch_in: sched.minibatch})
                 cur_nimg += sched.minibatch
             tflib.run([G_train_op], {lod_in: sched.lod, lrate_in: sched.G_lrate, minibatch_in: sched.minibatch})
+
+        print('current tick:', cur_tick, end=' ')
+        print('current nimg:', cur_nimg, end=' ')
+        print('tick_start_nimg+sched.tick_kimg*1000', tick_start_nimg + sched.tick_kimg * 1000)
 
         # Perform maintenance tasks once per tick.
         done = (cur_nimg >= total_kimg * 1000)

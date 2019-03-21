@@ -28,20 +28,20 @@ if 1:
     D_loss        = EasyDict(func_name='training.loss.D_logistic_simplegp', r1_gamma=10.0)  # Options for discriminator loss.
     dataset       = EasyDict()                                                              # Options for load_dataset().
     sched         = EasyDict()                                                              # Options for TrainingSchedule.
-    grid          = EasyDict(size='1080p', layout='random')                                    # Options for setup_snapshot_image_grid().
+    grid          = EasyDict(size='1080p', layout='random')                                 # Options for setup_snapshot_image_grid().
     metrics       = [metric_base.fid50k]                                                    # Options for MetricGroup.
     submit_config = dnnlib.SubmitConfig()                                                   # Options for dnnlib.submit_run().
     tf_config     = {'rnd.np_random_seed': 1000}                                            # Options for tflib.init_tf().
 
     # Dataset.
-    # desc += '-ffhq';     dataset = EasyDict(tfrecord_dir='ffhq');                 train.mirror_augment = True
-    # desc += '-ffhq512';  dataset = EasyDict(tfrecord_dir='ffhq', resolution=512); train.mirror_augment = True
-    # desc += '-ffhq256';  dataset = EasyDict(tfrecord_dir='ffhq', resolution=256); train.mirror_augment = True
-    desc += '-zi1872';  dataset = EasyDict(tfrecord_dir='zi1872', resolution=256); train.mirror_augment = False
-    # desc += '-celebahq'; dataset = EasyDict(tfrecord_dir='celebahq');             train.mirror_augment = True
-    # desc += '-bedroom';  dataset = EasyDict(tfrecord_dir='lsun-bedroom-full');    train.mirror_augment = False
-    # desc += '-car';      dataset = EasyDict(tfrecord_dir='lsun-car-512x384');     train.mirror_augment = False
-    # desc += '-cat';      dataset = EasyDict(tfrecord_dir='lsun-cat-full');        train.mirror_augment = False
+    # desc += '-ffhq';     dataset = EasyDict(tfrecord_dir='ffhq');                   train.mirror_augment = True
+    # desc += '-ffhq512';  dataset = EasyDict(tfrecord_dir='ffhq', resolution=512);   train.mirror_augment = True
+    desc += '-ffhq256';  dataset = EasyDict(tfrecord_dir='ffhq', resolution=256);   train.mirror_augment = True
+    # desc += '-zi1872';   dataset = EasyDict(tfrecord_dir='zi1872', resolution=256); train.mirror_augment = False
+    # desc += '-celebahq'; dataset = EasyDict(tfrecord_dir='celebahq');               train.mirror_augment = True
+    # desc += '-bedroom';  dataset = EasyDict(tfrecord_dir='lsun-bedroom-full');      train.mirror_augment = False
+    # desc += '-car';      dataset = EasyDict(tfrecord_dir='lsun-car-512x384');       train.mirror_augment = False
+    # desc += '-cat';      dataset = EasyDict(tfrecord_dir='lsun-cat-full');          train.mirror_augment = False
 
     # Number of GPUs.
     desc += '-1gpu'; submit_config.num_gpus = 1; sched.minibatch_base = 4; sched.minibatch_dict = {4: 128, 8: 128, 16: 128, 32: 64, 64: 32, 128: 16, 256: 8, 512: 4}
@@ -50,7 +50,7 @@ if 1:
     # desc += '-8gpu'; submit_config.num_gpus = 8; sched.minibatch_base = 32; sched.minibatch_dict = {4: 512, 8: 256, 16: 128, 32: 64, 64: 32}
 
     # Default options.
-    train.total_kimg = 3000
+    train.total_kimg = 1000
     sched.lod_initial_resolution = 8
     sched.G_lrate_dict = {128: 0.0015, 256: 0.002, 512: 0.003, 1024: 0.003}
     sched.D_lrate_dict = EasyDict(sched.G_lrate_dict)
