@@ -237,6 +237,7 @@ def training_loop(
 
         print('current tick:', cur_tick, end=' ')
         print('current nimg:', cur_nimg, end=' ')
+        print('current lod:', sched.lod, end=' ')
         print('tick_start_nimg+sched.tick_kimg*1000', tick_start_nimg + sched.tick_kimg * 1000)
 
         # Perform maintenance tasks once per tick.
