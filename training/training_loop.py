@@ -59,8 +59,8 @@ def training_schedule(
         training_set,
         num_gpus,
         lod_initial_resolution=4,        # Image resolution used at the beginning.
-        lod_training_kimg=600,      # Thousands of real images to show before doubling the resolution.
-        lod_transition_kimg=600,      # Thousands of real images to show when fading in new layers.
+        lod_training_kimg=500,      # Thousands of real images to show before doubling the resolution.
+        lod_transition_kimg=500,      # Thousands of real images to show when fading in new layers.
         minibatch_base=16,       # Maximum minibatch size, divided evenly among GPUs.
         minibatch_dict={},       # Resolution-specific overrides.
         max_minibatch_per_gpu={},       # Resolution-specific maximum minibatch size per GPU.
@@ -149,7 +149,7 @@ def training_loop(
     training_set = dataset.load_dataset(data_dir=config.data_dir, verbose=True, **dataset_args)
 
     # Construct networks.
-    with tf.device('/gpu:0'):
+    with tf.device('/g=cpu:0'):
         if resume_run_id is not None:
             network_pkl = misc.locate_network_pkl(resume_run_id, resume_snapshot)
             print('Loading networks from "%s"...' % network_pkl)
@@ -162,7 +162,7 @@ def training_loop(
     G.print_layers(); D.print_layers()
 
     print('Building TensorFlow graph...')
-    with tf.name_scope('Inputs'), tf.device('/gpu:0'):
+    with tf.name_scope('Inputs'), tf.device('/cpu:0'):
         lod_in          = tf.placeholder(tf.float32, name='lod_in', shape=[])
         lrate_in        = tf.placeholder(tf.float32, name='lrate_in', shape=[])
         minibatch_in    = tf.placeholder(tf.int32, name='minibatch_in', shape=[])
@@ -238,6 +238,7 @@ def training_loop(
         print('current tick:', cur_tick, end=' ')
         print('current nimg:', cur_nimg, end=' ')
         print('current lod:', sched.lod, end=' ')
+        print('current resolution:', sched.resolution, end=' ')
         print('tick_start_nimg+sched.tick_kimg*1000', tick_start_nimg + sched.tick_kimg * 1000)
 
         # Perform maintenance tasks once per tick.

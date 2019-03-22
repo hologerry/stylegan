@@ -158,7 +158,7 @@ class TFRecordDataset:
     # Get random labels as TensorFlow expression.
     def get_random_labels_tf(self, minibatch_size):  # => labels
         if self.label_size > 0:
-            with tf.device('/gpu:0'):
+            with tf.device('/cpu:0'):
                 return tf.gather(self._tf_labels_var, tf.random_uniform([minibatch_size], 0, self._np_labels.shape[0], dtype=tf.int32))
         return tf.zeros([minibatch_size, 0], self.label_dtype)
 
