@@ -149,7 +149,7 @@ def training_loop(
     training_set = dataset.load_dataset(data_dir=config.data_dir, verbose=True, **dataset_args)
 
     # Construct networks.
-    with tf.device('/g=cpu:0'):
+    with tf.device('/cpu:0'):
         if resume_run_id is not None:
             network_pkl = misc.locate_network_pkl(resume_run_id, resume_snapshot)
             print('Loading networks from "%s"...' % network_pkl)
